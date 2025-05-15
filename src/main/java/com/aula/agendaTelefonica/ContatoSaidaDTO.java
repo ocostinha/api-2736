@@ -24,6 +24,14 @@ public class ContatoSaidaDTO {
         this.email = email;
     }
 
+    public ContatoSaidaDTO(ContatoEntity contato) {
+        this.id = contato.getId();
+        this.nome = contato.getNome();
+        this.dddCelular = contato.getDddCelular();
+        this.celular = contato.getCelular();
+        this.email = contato.getEmail();
+    }
+
     public void setNome(final String nome) {
         this.nome = nome;
     }

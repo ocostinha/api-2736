@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 @RequestMapping(value = "/agendaTelefonica")
@@ -27,66 +29,70 @@ public class AgendaTelefonicaController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ContatoSaidaDTO postContrato(@RequestBody @Valid ContatoEntradaDTO dto) {
-        ContatoEntity entity = new ContatoEntity();
+        ContatoEntity entity = repository.save(new ContatoEntity(dto));
 
-        entity.setNome(dto.getNome());
-        entity.setCelular(dto.getCelular());
-        entity.setDddCelular(dto.getDddCelular());
-        entity.setEmail(dto.getEmail());
-        entity.setDataDeCricao(LocalDateTime.now());
-        entity.setDataDeAtualizacao(LocalDateTime.now());
-
-        ContatoEntity entityPersistida = repository.save(entity);
-
-        ContatoSaidaDTO dtoSaida = new ContatoSaidaDTO();
-
-        dtoSaida.setId(entityPersistida.getId());
-        dtoSaida.setNome(entityPersistida.getNome());
-        dtoSaida.setCelular(entityPersistida.getCelular());
-        dtoSaida.setDddCelular(entityPersistida.getDddCelular());
-        dtoSaida.setEmail(entityPersistida.getEmail());
-
-        return dtoSaida;
+        return new ContatoSaidaDTO(entity);
     }
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public ContatoSaidaDTO getContato(@PathVariable Integer id) {
-        ContatoEntity entitySalva = repository.findById(id).get();
+        ContatoEntity entity = repository.findById(id).get();
 
-        ContatoSaidaDTO  dtoSaida = new ContatoSaidaDTO();
-
-        dtoSaida.setId(entitySalva.getId());
-        dtoSaida.setNome(entitySalva.getNome());
-        dtoSaida.setCelular(entitySalva.getCelular());
-        dtoSaida.setDddCelular(entitySalva.getDddCelular());
-        dtoSaida.setEmail(entitySalva.getEmail());
-
-        return dtoSaida;
+        return new ContatoSaidaDTO(entity);
     }
 
     @GetMapping("/todos")
-    public String getTodosContatos() {
-        return "Get todos os contatos";
+    public List<ContatoSaidaDTO> getTodosContatos() {
+        List<ContatoEntity> listaEntity = repository.findAll();
+        List<ContatoSaidaDTO> listaContatosSaida = new ArrayList<>();
+
+        listaEntity.forEach(contato -> {
+            listaContatosSaida.add(new ContatoSaidaDTO(contato));
+        });
+
+        return listaContatosSaida;
     }
 
     @PatchMapping("/{id}/atualizar")
     @ResponseStatus(HttpStatus.OK)
-    public String patchContato(@PathVariable String id,
-                               @RequestParam String email) {
-        return "Patch realizado com sucesso no id: " + id + ". Email para ser alterado " + email;
+    public ContatoSaidaDTO patchContato(@PathVariable Integer id,
+                                        @RequestParam String email) {
+        ContatoEntity entity = repository.findById(id).get();
+
+        entity.setEmail(email);
+        entity.setDataDeAtualizacao(LocalDateTime.now());
+
+        ContatoEntity entityAtualizada = repository.save(entity);
+
+        return new ContatoSaidaDTO(entityAtualizada);
     }
 
     @PutMapping("/{id}/sobrescrever")
     @ResponseStatus(HttpStatus.OK)
-    public String putContato(@PathVariable String id) {
-        return "Put realizado com sucesso. ID: " + id;
+    public ContatoSaidaDTO putContato(@PathVariable Integer id,
+                                      @RequestBody @Valid ContatoEntradaDTO dto) {
+        ContatoEntity entity = repository.findById(id).get();
+
+        entity.setNome(dto.getNome());
+        entity.setEmail(dto.getEmail());
+        entity.setDddCelular(dto.getDddCelular());
+        entity.setCelular(dto.getCelular());
+        entity.setDataDeAtualizacao(LocalDateTime.now());
+
+        ContatoEntity entityAtualizada = repository.save(entity);
+
+        return new ContatoSaidaDTO(entityAtualizada);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public String deleteContato(@PathVariable String id) {
-        return "Delete com sucesso. ID: " + id;
+    public ContatoSaidaDTO deleteContato(@PathVariable Integer id) {
+        ContatoEntity entity = repository.findById(id).get();
+
+        repository.delete(entity);
+
+        return new ContatoSaidaDTO(entity);
     }
 
 }

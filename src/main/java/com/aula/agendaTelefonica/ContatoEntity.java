@@ -48,6 +48,15 @@ public class ContatoEntity {
         this.dataDeAtualizacao = dataDeAtualizacao;
     }
 
+    public ContatoEntity(ContatoEntradaDTO contato) {
+        this.nome = contato.getNome();
+        this.dddCelular = contato.getDddCelular();
+        this.celular = contato.getCelular();
+        this.email = contato.getEmail();
+        this.dataDeCricao = LocalDateTime.now();
+        this.dataDeAtualizacao = LocalDateTime.now();
+    }
+
     public Integer getId() {
         return id;
     }
