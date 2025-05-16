@@ -36,4 +36,10 @@ public class ControllerExceptionHandler {
         System.out.println("Elemento não encontrado");
     }
 
+    @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
+    @ExceptionHandler(RegraDeNegocioException.class)
+    public String handleBusinessException(RegraDeNegocioException ex) {
+        return ex.getMessage();
+    }
+
 }

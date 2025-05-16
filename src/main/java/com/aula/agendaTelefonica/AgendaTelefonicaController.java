@@ -29,6 +29,10 @@ public class AgendaTelefonicaController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ContatoSaidaDTO postContrato(@RequestBody @Valid ContatoEntradaDTO dto) {
+        if (repository.existsByEmail(dto.getEmail())) {
+            throw new RegraDeNegocioException("Email já cadastrado");
+        }
+
         ContatoEntity entity = repository.save(new ContatoEntity(dto));
 
         return new ContatoSaidaDTO(entity);
@@ -58,6 +62,10 @@ public class AgendaTelefonicaController {
     @ResponseStatus(HttpStatus.OK)
     public ContatoSaidaDTO patchContato(@PathVariable Integer id,
                                         @RequestParam String email) {
+        if (repository.existsByEmail(email)) {
+            throw new RegraDeNegocioException("Email já cadastrado");
+        }
+
         ContatoEntity entity = repository.findById(id).get();
 
         entity.setEmail(email);
@@ -73,6 +81,13 @@ public class AgendaTelefonicaController {
     public ContatoSaidaDTO putContato(@PathVariable Integer id,
                                       @RequestBody @Valid ContatoEntradaDTO dto) {
         ContatoEntity entity = repository.findById(id).get();
+
+        if (entity.getEmail().equals(dto.getEmail()) == false) {
+            if (repository.existsByEmail(dto.getEmail())) {
+                throw new RegraDeNegocioException("Email já cadastrado");
+            }
+        }
+
 
         entity.setNome(dto.getNome());
         entity.setEmail(dto.getEmail());
